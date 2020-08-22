@@ -90,7 +90,9 @@ trait InteractsWithServer
             $this->getConfig('coroutine.flags', SWOOLE_HOOK_ALL)
         );
 
-        $this->clearCache();
+        if ($this->getConfig('options.clear_cache', false)) {
+            $this->clearCache();
+        }
 
         $this->setProcessName(($server->taskworker ? 'task' : 'worker') . "#{$server->worker_id}");
 

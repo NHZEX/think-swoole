@@ -91,4 +91,9 @@ return [
     'instances'  => [],
     //每次请求前需要重新执行的服务
     'services'   => [],
+    //内部选项
+    'options'    => [
+        'clear_cache' => false,
+        'output_buffer' => false,
+    ],
 ];

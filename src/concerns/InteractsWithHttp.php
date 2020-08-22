@@ -103,9 +103,11 @@ trait InteractsWithHttp
         $this->runInSandbox(function (Http $http, Event $event, App $app, Middleware $middleware) use ($args, $req, $res) {
             $event->trigger('swoole.request', $args);
 
-            //兼容var-dumper
-            if (class_exists(VarDumper::class)) {
-                $middleware->add(ResetVarDumper::class);
+            if ($this->getConfig('options.output_var_dumper', false)) {
+                //兼容var-dumper
+                if (class_exists(VarDumper::class)) {
+                    $middleware->add(ResetVarDumper::class);
+                }
             }
 
             $request = $this->prepareRequest($req);
@@ -123,6 +125,12 @@ trait InteractsWithHttp
 
     protected function handleRequest(Http $http, $request)
     {
+        if (!$this->getConfig('options.output_buffer', false)) {
+            $response = $http->run($request);
+            $http->end($response);
+            return $response;
+        }
+
         $level = ob_get_level();
         ob_start();
 
