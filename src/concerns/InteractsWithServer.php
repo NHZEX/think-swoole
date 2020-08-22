@@ -60,7 +60,7 @@ trait InteractsWithServer
      */
     public function onStart()
     {
-        $this->setProcessName('master process');
+        $this->setProcessName('master');
 
         $this->triggerEvent("start", func_get_args());
     }
@@ -72,7 +72,7 @@ trait InteractsWithServer
      */
     public function onManagerStart()
     {
-        $this->setProcessName('manager process');
+        $this->setProcessName('manager');
         $this->triggerEvent("managerStart", func_get_args());
     }
 
@@ -92,7 +92,7 @@ trait InteractsWithServer
 
         $this->clearCache();
 
-        $this->setProcessName($server->taskworker ? 'task process' : 'worker process');
+        $this->setProcessName(($server->taskworker ? 'task' : 'worker') . "#{$server->worker_id}");
 
         $this->prepareApplication();
 
@@ -200,10 +200,9 @@ trait InteractsWithServer
             return;
         }
 
-        $serverName = 'swoole_http_server';
         $appName    = $this->container->config->get('app.name', 'ThinkPHP');
 
-        $name = sprintf('%s: %s for %s', $serverName, $process, $appName);
+        $name = sprintf('%s: %s', $appName, $process);
 
         swoole_set_process_name($name);
     }
