@@ -155,7 +155,8 @@ trait InteractsWithServer
                 $this->getConfig('hot_update.name', [])
             );
 
-            $watcher->watch(function () {
+            $watcher->watch(function ($path) {
+                echo "[hot reload] $path\n";
                 $this->getServer()->reload();
             });
         }, false, 0);
