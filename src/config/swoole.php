@@ -83,6 +83,7 @@ return [
         'flags'  => SWOOLE_HOOK_ALL,
     ],
     'tables'     => [],
+    'process'    => [],
     //每个worker里需要预加载以共用的实例
     'concretes'  => [],
     //重置器

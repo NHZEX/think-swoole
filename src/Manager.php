@@ -14,6 +14,7 @@ namespace think\swoole;
 use think\App;
 use think\swoole\concerns\InteractsWithHttp;
 use think\swoole\concerns\InteractsWithPools;
+use think\swoole\concerns\InteractsWithProcess;
 use think\swoole\concerns\InteractsWithRpcServer;
 use think\swoole\concerns\InteractsWithRpcClient;
 use think\swoole\concerns\InteractsWithServer;
@@ -31,9 +32,12 @@ class Manager
         InteractsWithHttp,
         InteractsWithWebsocket,
         InteractsWithPools,
+        InteractsWithProcess,
         InteractsWithRpcClient,
         InteractsWithRpcServer,
         WithApplication;
+
+    protected static $managerInstance;
 
     /**
      * @var App
@@ -61,13 +65,22 @@ class Manager
         'request',
     ];
 
+    public static function getInstance():? self
+    {
+        return self::$managerInstance;
+    }
+
     /**
      * Manager constructor.
      * @param App $container
      */
     public function __construct(App $container)
     {
+        if (self::$managerInstance !== null) {
+            throw new \RuntimeException('Repeat instance manager');
+        }
         $this->container = $container;
+        self::$managerInstance = $this;
     }
 
     /**
@@ -79,6 +92,7 @@ class Manager
         $this->preparePools();
         $this->prepareWebsocket();
         $this->setSwooleServerListeners();
+        $this->prepareProcess();
         $this->prepareRpcServer();
         $this->prepareRpcClient();
     }
