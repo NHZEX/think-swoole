@@ -10,15 +10,15 @@
     ],
     "require": {
         "php": ">7.1",
-        "ext-swoole": ">=4.4.8",
+        "ext-swoole": "^4.4.18",
         "ext-json": "*",
         "topthink/framework": "^6.0",
         "symfony/finder": "^4.3.2|^5.1",
-        "swoole/ide-helper": "^4.3",
         "nette/php-generator": "^3.2",
         "open-smf/connection-pool": "~1.0"
     },
     "require-dev": {
+        "swoole/ide-helper": "^4.4.18",
         "symfony/var-dumper": "^4.3|^5.1"
     },
     "autoload": {
