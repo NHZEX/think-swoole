@@ -19,6 +19,7 @@ use Throwable;
  * Trait InteractsWithServer
  * @package think\swoole\concerns
  * @property App $container
+ * @property Output $consoleOutput
  */
 trait InteractsWithServer
 {
@@ -158,7 +159,7 @@ trait InteractsWithServer
             );
 
             $watcher->watch(function ($path) {
-                echo "[hot reload] $path\n";
+                $this->consoleOutput->info("[FW] $path <comment>reload</comment>");
                 $this->getServer()->reload();
             });
         }, false, 0);
