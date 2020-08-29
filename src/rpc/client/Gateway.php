@@ -94,7 +94,7 @@ class Gateway
 
         $host    = Arr::pull($config, 'host');
         $port    = Arr::pull($config, 'port');
-        $timeout = Arr::pull($config, 'timeout');
+        $timeout = Arr::pull($config, 'timeout', 5);
 
         $client->set(array_merge($config, [
             'open_length_check'     => true,
@@ -143,5 +143,4 @@ class Gateway
             }
         };
     }
-
 }
