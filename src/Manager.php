@@ -14,6 +14,7 @@ namespace think\swoole;
 use RuntimeException;
 use think\App;
 use think\console\Output;
+use think\swoole\concerns\InteractsWithGlobalEvent;
 use think\swoole\concerns\InteractsWithHttp;
 use think\swoole\concerns\InteractsWithPools;
 use think\swoole\concerns\InteractsWithProcess;
@@ -31,6 +32,7 @@ use think\swoole\concerns\WithApplication;
 class Manager
 {
     use InteractsWithServer,
+        InteractsWithGlobalEvent,
         InteractsWithWorkerIPC,
         InteractsWithSwooleTable,
         InteractsWithHttp,
@@ -97,6 +99,7 @@ class Manager
      */
     protected function initialize(): void
     {
+        $this->prepareEventRegister();
         $this->prepareWorkerIPC();
         $this->prepareTables();
         $this->preparePools();

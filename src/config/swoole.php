@@ -24,6 +24,7 @@ return [
             'socket_buffer_size'    => 128 * 1024 * 1024,
         ],
     ],
+    'event'      => null,
     'websocket'  => [
         'enable'        => false,
         'handler'       => Handler::class,
