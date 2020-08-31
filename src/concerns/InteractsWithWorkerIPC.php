@@ -7,7 +7,11 @@ use Swoole\Atomic;
 use Swoole\Server;
 use think\App;
 use think\swoole\IpcResponse;
+use function call_user_func;
+use function count;
 use function str_starts_with;
+use function strlen;
+use function substr;
 use function unserialize;
 
 /**
@@ -38,6 +42,24 @@ trait InteractsWithWorkerIPC
     }
 
     /**
+     * @param callable $call
+     * @return false|mixed
+     */
+    public function sendIpcRequestFromCall(callable $call)
+    {
+        $resp = new IpcResponse();
+        $this->addIpcListen($resp);
+        $result = call_user_func($call, $resp);
+        if ($result === false) {
+            $this->removeIpcListen($resp);
+            return null;
+        }
+
+        $resp->yield();
+        return $resp->getMessage();
+    }
+
+    /**
      * @param $rid
      * @param $dstWorkerId
      * @param $message
@@ -60,13 +82,12 @@ trait InteractsWithWorkerIPC
 
     public function onPipeMessage($server, $srcWorkerId, $message)
     {
-        if (str_starts_with($message, 'a:')) {
-            $pack = @unserialize($message);
-            if (is_array($pack) && isset($pack['rid'])) {
-                if (isset($this->waitResponse[$pack['rid']])) {
-                    $resp = $this->waitResponse[$pack['rid']];
+        if (str_starts_with($message, IpcResponse::HEAD)) {
+            $pack = @unserialize(substr($message, strlen(IpcResponse::HEAD)));
+            if (is_array($pack) && count($pack) === 2) {
+                if ($resp = ($this->waitResponse[$pack[0]] ?? null)) {
                     $this->removeIpcListen($resp);
-                    $resp->resume($srcWorkerId, $pack['msg']);
+                    $resp->resume($srcWorkerId, $pack[1]);
                     return;
                 }
             }
