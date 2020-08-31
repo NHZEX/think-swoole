@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace think\swoole\contract;
 
+use Swoole\Coroutine;
 use Swoole\Process;
 use Swoole\Runtime;
 use Swoole\Server;
@@ -110,4 +111,32 @@ abstract class ProcessAbstract implements ProcessInterface
 
         $this->process->name(sprintf('%s: %s', $appName, $name));
     }
+
+    /**
+     * @param array|null $protocol
+     */
+    protected function listenPipeMessage(array $protocol = null)
+    {
+        Coroutine::create(function () use ($protocol) {
+            /** @var Coroutine\Socket $socket */
+            $socket = $this->process->exportSocket();
+            if (!empty($protocol)) {
+                $socket->setProtocol($protocol);
+            }
+            while (true) {
+                $result = $socket->recv();
+                if (false === $result) {
+                    $this->manager->getConsoleOutput()->writeln("crontab pipe: [{$socket->errCode}] {$socket->errMsg}");
+                    break;
+                }
+                if ('' === $result) {
+                    $this->manager->getConsoleOutput()->writeln("crontab pipe: down [empty recv]");
+                    break;
+                }
+                $this->handlePipeMessage($result);
+            }
+        });
+    }
+
+    abstract protected function handlePipeMessage(string $message);
 }

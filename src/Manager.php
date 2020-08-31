@@ -11,6 +11,7 @@
 
 namespace think\swoole;
 
+use RuntimeException;
 use think\App;
 use think\console\Output;
 use think\swoole\concerns\InteractsWithHttp;
@@ -21,6 +22,7 @@ use think\swoole\concerns\InteractsWithRpcClient;
 use think\swoole\concerns\InteractsWithServer;
 use think\swoole\concerns\InteractsWithSwooleTable;
 use think\swoole\concerns\InteractsWithWebsocket;
+use think\swoole\concerns\InteractsWithWorkerIPC;
 use think\swoole\concerns\WithApplication;
 
 /**
@@ -29,6 +31,7 @@ use think\swoole\concerns\WithApplication;
 class Manager
 {
     use InteractsWithServer,
+        InteractsWithWorkerIPC,
         InteractsWithSwooleTable,
         InteractsWithHttp,
         InteractsWithWebsocket,
@@ -83,7 +86,7 @@ class Manager
     public function __construct(App $container)
     {
         if (self::$managerInstance !== null) {
-            throw new \RuntimeException('Repeat instance manager');
+            throw new RuntimeException('Repeat instance manager');
         }
         $this->container = $container;
         self::$managerInstance = $this;
@@ -94,6 +97,7 @@ class Manager
      */
     protected function initialize(): void
     {
+        $this->prepareWorkerIPC();
         $this->prepareTables();
         $this->preparePools();
         $this->prepareWebsocket();
