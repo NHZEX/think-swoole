@@ -2,6 +2,7 @@
 
 namespace think\swoole\pool;
 
+use Swoole\Coroutine;
 use think\Config;
 use think\db\ConnectionInterface;
 use think\swoole\pool\proxy\Connection;
@@ -16,9 +17,13 @@ class Db extends \think\Db
 
     protected function createConnection(string $name): ConnectionInterface
     {
-        return new Connection(function () use ($name) {
+        if (Coroutine::getCid() === -1) {
             return parent::createConnection($name);
-        }, $this->config->get('swoole.pool.db', []));
+        } else {
+            return new Connection(function () use ($name) {
+                return parent::createConnection($name);
+            }, $this->config->get('swoole.pool.db', []));
+        }
     }
 
     protected function getConnectionConfig(string $name): array

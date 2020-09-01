@@ -9,6 +9,7 @@ use think\swoole\App as SwooleApp;
 use think\swoole\pool\Cache;
 use think\swoole\pool\Db;
 use think\swoole\Sandbox;
+use think\swoole\VirtualContainer;
 use Throwable;
 
 /**
@@ -59,7 +60,7 @@ trait WithApplication
     protected function prepareApplication()
     {
         if (!$this->app instanceof SwooleApp) {
-            $this->app = new SwooleApp($this->container->getRootPath());
+            $this->app = new VirtualContainer($this->container->getRootPath());
             $this->app->bind(SwooleApp::class, App::class);
             $this->app->bind(Server::class, $this->getServer());
             $this->app->bind("swoole.server", Server::class);
