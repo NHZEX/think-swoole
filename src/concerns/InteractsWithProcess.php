@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace think\swoole\concerns;
 
+use Swoole\Runtime;
 use Swoole\Server;
 use think\App;
 use think\swoole\contract\ProcessAbstract;
@@ -42,5 +43,19 @@ trait InteractsWithProcess
     public function findProcess(string $className): ProcessAbstract
     {
         return $this->process[$className];
+    }
+
+    public function processStart()
+    {
+        Runtime::enableCoroutine(
+            $this->getConfig('coroutine.enable', true),
+            $this->getConfig('coroutine.flags', SWOOLE_HOOK_ALL)
+        );
+
+        if ($this->getConfig('options.clear_cache', false)) {
+            $this->clearCache();
+        }
+
+        $this->prepareApplication();
     }
 }

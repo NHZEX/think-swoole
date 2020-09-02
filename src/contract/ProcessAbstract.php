@@ -69,10 +69,7 @@ abstract class ProcessAbstract implements ProcessInterface
 
     protected function entrance(): void
     {
-        Runtime::enableCoroutine(
-            $this->manager->getConfig('coroutine.enable', true),
-            $this->manager->getConfig('coroutine.flags', SWOOLE_HOOK_ALL)
-        );
+        $this->manager->processStart();
         $this->setProcessName($this->processName());
         $this->worker();
     }
