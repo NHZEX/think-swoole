@@ -10,12 +10,11 @@
     ],
     "require": {
         "php": ">7.1",
-        "ext-swoole": "^4.4.18",
         "ext-json": "*",
-        "topthink/framework": "^6.0",
+        "ext-swoole": "^4.4.18",
+        "open-smf/connection-pool": "~1.0",
         "symfony/finder": "^4.3.2|^5.1",
-        "nette/php-generator": "^3.2",
-        "open-smf/connection-pool": "~1.0"
+        "topthink/framework": "^6.0"
     },
     "require-dev": {
         "swoole/ide-helper": "^4.4.18",

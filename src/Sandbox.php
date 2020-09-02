@@ -67,6 +67,7 @@ class Sandbox
         Container::setInstance(function () {
             return $this->getApplication();
         });
+        SafetyContainer::lockInstance();
 
         $this->app->bind(Http::class, \think\swoole\Http::class);
 
@@ -113,6 +114,9 @@ class Sandbox
 
     public function getApplication()
     {
+        if (Context::getCoroutineId() === -1) {
+            return $this->getBaseApp();
+        }
         $snapshot = $this->getSnapshot();
         if ($snapshot instanceof Container) {
             return $snapshot;
