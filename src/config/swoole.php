@@ -97,5 +97,6 @@ return [
     'options'    => [
         'clear_cache' => false,
         'output_buffer' => false,
+        'disable_forced_gc_collect' => true,
     ],
 ];

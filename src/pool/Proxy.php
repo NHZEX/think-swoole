@@ -9,6 +9,7 @@ use Smf\ConnectionPool\Connectors\ConnectorInterface;
 use Swoole\Coroutine;
 use Swoole\Event;
 use think\swoole\coroutine\Context;
+use think\swoole\Manager;
 use think\swoole\Pool;
 
 abstract class Proxy
@@ -29,10 +30,12 @@ abstract class Proxy
             new class($creator) implements ConnectorInterface {
 
                 protected $creator;
+                protected $disableFGC = false;
 
                 public function __construct($creator)
                 {
                     $this->creator = $creator;
+                    $this->disableFGC = Manager::getInstance()->getConfig('disable_forced_gc_collect', true);
                 }
 
                 public function connect(array $config)
@@ -42,10 +45,12 @@ abstract class Proxy
 
                 public function disconnect($connection)
                 {
-                    //强制回收内存，完成连接释放
-                    Event::defer(function () {
-                        gc_collect_cycles();
-                    });
+                    if (!$this->disableFGC) {
+                        //强制回收内存，完成连接释放
+                        Event::defer(function () {
+                            gc_collect_cycles();
+                        });
+                    }
                 }
 
                 public function isConnected($connection): bool
