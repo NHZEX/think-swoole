@@ -5,7 +5,6 @@ namespace think\swoole\contract;
 
 use Swoole\Coroutine;
 use Swoole\Process;
-use Swoole\Runtime;
 use Swoole\Server;
 use think\swoole\Manager;
 use think\swoole\QuickHelper;
@@ -123,14 +122,14 @@ abstract class ProcessAbstract implements ProcessInterface
             while (true) {
                 $result = $socket->recv();
                 if (false === $result) {
-                    $this->manager->getConsoleOutput()->writeln("crontab pipe: [{$socket->errCode}] {$socket->errMsg}");
+                    $this->manager->getConsoleOutput()->writeln("{$this->processName()} pipe: [{$socket->errCode}] {$socket->errMsg}");
                     break;
                 }
                 if ('' === $result) {
-                    $this->manager->getConsoleOutput()->writeln("crontab pipe: down [empty recv]");
+                    $this->manager->getConsoleOutput()->writeln("{$this->processName()} pipe: down [empty recv]");
                     break;
                 }
-                $this->handlePipeMessage($result);
+                Coroutine::create(self::callWrap([$this, 'handlePipeMessage']), $result);
             }
         });
     }
