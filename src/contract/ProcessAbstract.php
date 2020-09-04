@@ -122,6 +122,9 @@ abstract class ProcessAbstract implements ProcessInterface
             while (true) {
                 $result = $socket->recv();
                 if (false === $result) {
+                    if ($socket->errCode === 110) {
+                        continue;
+                    }
                     $this->manager->getConsoleOutput()->writeln("{$this->processName()} pipe: [{$socket->errCode}] {$socket->errMsg}");
                     break;
                 }
