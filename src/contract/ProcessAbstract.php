@@ -52,6 +52,14 @@ abstract class ProcessAbstract implements ProcessInterface
         return $this->process;
     }
 
+    /**
+     * @return bool
+     */
+    final public function isEnableCoroutine(): bool
+    {
+        return $this->enableCoroutine;
+    }
+
     final public function init(Manager $manager)
     {
         $this->manager = $manager;
@@ -68,7 +76,7 @@ abstract class ProcessAbstract implements ProcessInterface
 
     protected function entrance(): void
     {
-        $this->manager->processStart();
+        $this->manager->processStart($this);
         $this->setProcessName($this->processName());
         $this->worker();
     }
@@ -110,6 +118,7 @@ abstract class ProcessAbstract implements ProcessInterface
 
     /**
      * @param array|null $protocol
+     * @required ext-swoole >= 4.5.3
      */
     protected function listenPipeMessage(array $protocol = null)
     {
@@ -122,9 +131,6 @@ abstract class ProcessAbstract implements ProcessInterface
             while (true) {
                 $result = $socket->recv();
                 if (false === $result) {
-                    if ($socket->errCode === 110) {
-                        continue;
-                    }
                     $this->manager->getConsoleOutput()->writeln("{$this->processName()} pipe: [{$socket->errCode}] {$socket->errMsg}");
                     break;
                 }

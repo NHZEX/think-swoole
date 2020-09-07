@@ -3,10 +3,12 @@ declare(strict_types=1);
 
 namespace think\swoole\concerns;
 
+use Swoole\Coroutine;
 use Swoole\Runtime;
 use Swoole\Server;
 use think\App;
 use think\swoole\contract\ProcessAbstract;
+use think\swoole\coroutine\Context;
 use think\swoole\Manager;
 use function array_unique;
 use function class_exists;
@@ -33,9 +35,10 @@ trait InteractsWithProcess
             if (!(($process = $this->container->invokeClass($class)) instanceof ProcessAbstract)) {
                 continue;
             }
-
+            /** @var Manager $manager */
+            $manager = $this;
             /** @var ProcessAbstract $process */
-            $process->init($this);
+            $process->init($manager);
             $this->process[get_class($process)] = $process;
         }
     }
@@ -45,7 +48,7 @@ trait InteractsWithProcess
         return $this->process[$className];
     }
 
-    public function processStart()
+    public function processStart(ProcessAbstract $process)
     {
         Runtime::enableCoroutine(
             $this->getConfig('coroutine.enable', true),
@@ -54,6 +57,10 @@ trait InteractsWithProcess
 
         if ($this->getConfig('options.clear_cache', false)) {
             $this->clearCache();
+        }
+
+        if ($process->isEnableCoroutine()) {
+            Context::setData('_fd', Coroutine::getCid());
         }
 
         $this->prepareApplication();

@@ -11,7 +11,7 @@
     "require": {
         "php": ">7.1",
         "ext-json": "*",
-        "ext-swoole": "^4.4.18",
+        "ext-swoole": "^4.4.18|^4.5.2",
         "open-smf/connection-pool": "~1.0",
         "symfony/finder": "^4.3.2|^5.1",
         "topthink/framework": "^6.0"

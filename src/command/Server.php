@@ -68,8 +68,9 @@ class Server extends Command
             exit(1);
         }
 
-        if (!version_compare(swoole_version(), '4.3.1', 'ge')) {
-            $this->output->error('Your Swoole version must be higher than `4.3.1`.');
+        // todo ext-swoole >= 4.5.2
+        if (!version_compare(swoole_version(), '4.4.12', 'ge')) {
+            $this->output->error('Your Swoole version must be higher than `4.4.12`.');
 
             exit(1);
         }
