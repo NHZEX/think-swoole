@@ -3,11 +3,17 @@
 namespace think\swoole\pool\proxy;
 
 use Psr\SimpleCache\CacheInterface;
+use RuntimeException;
 use think\contract\CacheHandlerInterface;
 use think\swoole\pool\Proxy;
 
 class Store extends Proxy implements CacheHandlerInterface, CacheInterface
 {
+    protected function connectorClassName(): string
+    {
+        throw new RuntimeException('Deprecated Cache Pool');
+    }
+
     /**
      * @inheritDoc
      */

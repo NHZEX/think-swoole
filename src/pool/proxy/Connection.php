@@ -6,6 +6,7 @@ use Psr\SimpleCache\CacheInterface;
 use think\db\BaseQuery;
 use think\db\ConnectionInterface;
 use think\DbManager;
+use think\swoole\pool\DbConnectionPool;
 use think\swoole\pool\Proxy;
 
 /**
@@ -15,6 +16,10 @@ use think\swoole\pool\Proxy;
  */
 class Connection extends Proxy implements ConnectionInterface
 {
+    protected function connectorClassName(): string
+    {
+        return DbConnectionPool::class;
+    }
 
     /**
      * 获取当前连接器类对应的Query类
