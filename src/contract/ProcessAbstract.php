@@ -126,12 +126,17 @@ abstract class ProcessAbstract implements ProcessInterface
             /** @var Coroutine\Socket $socket */
             $socket = $this->process->exportSocket();
             if (!empty($protocol)) {
+                // todo 定义一个通信协议
                 $socket->setProtocol($protocol);
             }
+            $socket->setOption(SOL_SOCKET, SO_RCVTIMEO, ['sec' => -1, 'usec' => 0]);
             while (true) {
                 $result = $socket->recv();
                 if (false === $result) {
                     $this->manager->getConsoleOutput()->writeln("{$this->processName()} pipe: [{$socket->errCode}] {$socket->errMsg}");
+                    if ($socket->errCode === 110) {
+                        continue;
+                    }
                     break;
                 }
                 if ('' === $result) {
