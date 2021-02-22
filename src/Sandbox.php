@@ -132,9 +132,9 @@ class Sandbox
     {
         if ($fd = Context::getData('_fd')) {
             return "fd_" . $fd;
-        } else {
-            return Context::getCoroutineId();
         }
+
+        return Context::getCoroutineId();
     }
 
     /**

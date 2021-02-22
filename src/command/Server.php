@@ -79,7 +79,7 @@ class Server extends Command
     /**
      * 启动server
      * @access protected
-     * @param Manager    $manager
+     * @param Manager $manager
      * @param PidManager $pidManager
      * @return void
      */
@@ -154,7 +154,7 @@ class Server extends Command
     /**
      * 重启server
      * @access protected
-     * @param Manager    $manager
+     * @param Manager $manager
      * @param PidManager $pidManager
      * @return void
      */
@@ -172,7 +172,6 @@ class Server extends Command
      */
     protected function createSwooleServer()
     {
-
         $isWebsocket = $this->app->config->get('swoole.websocket.enable', false);
 
         $serverClass = $isWebsocket ? WebsocketServer::class : HttpServer::class;
