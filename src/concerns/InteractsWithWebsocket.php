@@ -24,7 +24,7 @@ use think\swoole\websocket\socketio\Parser as SocketioParser;
  * Trait InteractsWithWebsocket
  * @package think\swoole\concerns
  *
- * @property App       $app
+ * @property App $app
  * @property Container $container
  * @method \Swoole\Server getServer()
  */
@@ -50,17 +50,20 @@ trait InteractsWithWebsocket
     /**
      * "onOpen" listener.
      *
-     * @param Server  $server
+     * @param Server $server
      * @param Request $req
      */
     public function onOpen($server, $req)
     {
+        $this->waitEvent('workerStart');
+
         /** @var Websocket $websocket */
         $websocket = $this->app->make(Websocket::class);
         $websocket->setSender($req->fd);
 
         $this->runInSandbox(function (Event $event, HandlerInterface $handler, App $app) use ($req) {
             $request = $this->prepareRequest($req);
+            $app->instance('request', $request);
             $request = $this->setRequestThroughMiddleware($app, $request);
 
             if (!$handler->onOpen($req->fd, $request)) {
@@ -73,7 +76,7 @@ trait InteractsWithWebsocket
      * "onMessage" listener.
      *
      * @param Server $server
-     * @param Frame  $frame
+     * @param Frame $frame
      */
     public function onMessage($server, $frame)
     {
@@ -98,8 +101,8 @@ trait InteractsWithWebsocket
      * "onClose" listener.
      *
      * @param Server $server
-     * @param int    $fd
-     * @param int    $reactorId
+     * @param int $fd
+     * @param int $reactorId
      */
     public function onClose($server, $fd, $reactorId)
     {
@@ -124,7 +127,7 @@ trait InteractsWithWebsocket
     }
 
     /**
-     * @param App            $app
+     * @param App $app
      * @param \think\Request $request
      * @return \think\Request
      */
@@ -137,7 +140,7 @@ trait InteractsWithWebsocket
             ->through(array_map(function ($middleware) use ($app) {
                 return function ($request, $next) use ($app, $middleware) {
                     if (is_array($middleware)) {
-                        list($middleware, $param) = $middleware;
+                        [$middleware, $param] = $middleware;
                     }
                     if (is_string($middleware)) {
                         $middleware = [$app->make($middleware), 'handle'];
