@@ -11,8 +11,9 @@
     "require": {
         "php": ">7.1",
         "ext-json": "*",
-        "ext-swoole": "^4.4.18|^4.5.2",
         "ext-sockets": "*",
+        "ext-swoole": "^4.4.18 | ^4.5.2",
+        "nette/php-generator": "^3.5",
         "open-smf/connection-pool": "~1.0",
         "symfony/finder": "^4.3.2|^5.1",
         "topthink/framework": "~6.0.3"
@@ -45,7 +46,7 @@
         "sort-packages": true,
         "platform-check": false,
         "platform": {
-            "ext-swoole": "4.4.8",
+            "ext-swoole": "4.4.18",
             "ext-fileinfo": "1.0.4"
         }
     }
