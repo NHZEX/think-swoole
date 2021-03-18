@@ -7,7 +7,9 @@ use think\swoole\coroutine\Context;
 
 class App extends \think\App
 {
-    public static $lockInstance = false;
+    protected static $lockInstance = false;
+
+    protected $allowClearInstances = false;
 
     public static function setInstance($instance): void
     {
@@ -27,8 +29,16 @@ class App extends \think\App
         return Context::hasData('_fd');
     }
 
+    public function allowClearInstances(bool $allow = true): void
+    {
+        $this->allowClearInstances = $allow;
+    }
+
     public function clearInstances()
     {
+        if (!$this->allowClearInstances) {
+            throw new RuntimeException('Unexpected container context clear');
+        }
         $this->instances = [];
     }
 }

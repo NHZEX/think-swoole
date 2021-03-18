@@ -123,6 +123,7 @@ class Sandbox
         }
 
         $snapshot = clone $this->getBaseApp();
+        $snapshot->allowClearInstances();
         $this->setSnapshot($snapshot);
 
         return $snapshot;
