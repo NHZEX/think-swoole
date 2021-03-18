@@ -67,7 +67,7 @@ class Sandbox
         Container::setInstance(function () {
             return $this->getApplication();
         });
-        SafetyContainer::lockInstance();
+        $this->getBaseApp()->lockInstance();
 
         $this->app->bind(Http::class, \think\swoole\Http::class);
 

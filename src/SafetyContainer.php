@@ -3,6 +3,11 @@ declare(strict_types=1);
 
 namespace think\swoole;
 
+/**
+ * Class SafetyContainer
+ * @package think\swoole
+ * @deprecated
+ */
 class SafetyContainer extends \think\App
 {
     public static $lockInstance = false;
