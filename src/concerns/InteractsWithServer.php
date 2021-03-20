@@ -10,11 +10,9 @@ use Swoole\Server\Task;
 use think\App;
 use think\console\Output;
 use think\Event;
-use think\exception\Handle;
 use think\helper\Str;
 use think\swoole\FileWatcher;
 use think\swoole\Job;
-use Throwable;
 
 /**
  * Trait InteractsWithServer
@@ -94,13 +92,13 @@ trait InteractsWithServer
             );
 
             if ($this->getConfig('options.clear_cache', false)) {
-            $this->clearCache();
-        }
+                $this->clearCache();
+            }
 
             $this->setProcessName(($server->taskworker ? 'task' : 'worker') . "#{$server->worker_id}");
 
             $this->prepareApplication();
-
+            $this->bindServer();
             $this->triggerEvent("workerStart", $this->app);
         });
     }
@@ -134,6 +132,12 @@ trait InteractsWithServer
     public function onShutdown()
     {
         $this->triggerEvent('shutdown');
+    }
+
+    protected function bindServer()
+    {
+        $this->app->bind(Server::class, $this->getServer());
+        $this->app->bind("swoole.server", Server::class);
     }
 
     /**
@@ -211,30 +215,10 @@ trait InteractsWithServer
      */
     protected function setProcessName($process)
     {
-        // Mac OSX不支持进程重命名
-        if (stristr(PHP_OS, 'DAR')) {
-            return;
-        }
-
         $appName    = $this->container->config->get('app.name', 'ThinkPHP');
 
         $name = sprintf('%s: %s', $appName, $process);
 
-        swoole_set_process_name($name);
-    }
-
-    /**
-     * Log server error.
-     *
-     * @param Throwable|Exception $e
-     */
-    public function logServerError(Throwable $e)
-    {
-        /** @var Handle $handle */
-        $handle = $this->container->make(Handle::class);
-
-        $handle->renderForConsole(new Output(), $e);
-
-        $handle->report($e);
+        @cli_set_process_title($name);
     }
 }

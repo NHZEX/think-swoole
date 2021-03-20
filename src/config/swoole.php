@@ -77,6 +77,11 @@ return [
         ],
         //自定义连接池
     ],
+    //队列
+    'queue'      => [
+        'enable'  => false,
+        'workers' => [],
+    ],
     'coroutine'  => [
         'enable' => true,
         'flags'  => SWOOLE_HOOK_ALL,

@@ -3,7 +3,6 @@
 namespace think\swoole\concerns;
 
 use Closure;
-use Swoole\Server;
 use think\App;
 use think\swoole\App as SwooleApp;
 use think\swoole\pool\Cache;
@@ -19,52 +18,16 @@ use Throwable;
  */
 trait WithApplication
 {
-    use InteractsWithCoordinator;
-
     /**
      * @var SwooleApp
      */
     protected $app;
-
-    /**
-     * 获取配置
-     * @param string $name
-     * @param null $default
-     * @return mixed
-     */
-    public function getConfig(string $name, $default = null)
-    {
-        return $this->container->config->get("swoole.{$name}", $default);
-    }
-
-    /**
-     * 触发事件
-     * @param string $event
-     * @param null $params
-     */
-    protected function triggerEvent(string $event, $params = null): void
-    {
-        $this->container->event->trigger("swoole.{$event}", $params);
-    }
-
-    /**
-     * 监听事件
-     * @param string $event
-     * @param        $listener
-     * @param bool $first
-     */
-    public function onEvent(string $event, $listener, bool $first = false): void
-    {
-        $this->container->event->listen("swoole.{$event}", $listener, $first);
-    }
 
     protected function prepareApplication()
     {
         if (!$this->app instanceof SwooleApp) {
             $this->app = new VirtualContainer($this->container->getRootPath());
             $this->app->bind(SwooleApp::class, App::class);
-            $this->app->bind(Server::class, $this->getServer());
-            $this->app->bind("swoole.server", Server::class);
             //绑定连接池
             if ($this->getConfig('pool.db.enable', true)) {
                 $this->app->bind('db', Db::class);
@@ -94,6 +57,11 @@ trait WithApplication
                 $this->app->make($concrete);
             }
         }
+    }
+
+    protected function getApplication()
+    {
+        return $this->app;
     }
 
     /**

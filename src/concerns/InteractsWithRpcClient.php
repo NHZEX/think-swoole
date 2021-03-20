@@ -25,18 +25,37 @@ use Throwable;
  */
 trait InteractsWithRpcClient
 {
-    protected $rpcServices = [];
-
     protected function prepareRpcClient()
+    {
+        $this->onEvent('workerStart', function () {
+            $this->bindRpcClientPool();
+            $this->bindRpcInterface();
+        });
+    }
+
+    protected function bindRpcInterface()
     {
         //引入rpc接口文件
         if (file_exists($rpc = $this->container->getBasePath() . 'rpc.php')) {
-            $this->rpcServices = (array) include $rpc;
-        }
+            $rpcServices = (array) include $rpc;
 
-        $this->onEvent('workerStart', function () {
-            $this->bindRpcClientPool();
-        });
+            //绑定rpc接口
+            try {
+                foreach ($rpcServices as $name => $abstracts) {
+                    $parserClass = $this->getConfig("rpc.client.{$name}.parser", JsonParser::class);
+                    $parser      = $this->getApplication()->make($parserClass);
+                    $gateway     = new Gateway($this->createRpcConnector($name), $parser);
+                    $middleware  = $this->getConfig("rpc.client.{$name}.middleware", []);
+
+                    foreach ($abstracts as $abstract) {
+                        $this->getApplication()->bind($abstract, function (App $app) use ($middleware, $gateway, $name, $abstract) {
+                            return $app->invokeClass(Proxy::getClassName($name, $abstract), [$gateway, $middleware]);
+                        });
+                    }
+                }
+            } catch (Throwable $e) {
+            }
+        }
     }
 
     protected function bindRpcClientPool()
@@ -58,23 +77,6 @@ trait InteractsWithRpcClient
                     )
                 );
                 $this->getPools()->add("rpc.client.{$name}", $pool);
-            }
-
-            //绑定rpc接口
-            try {
-                foreach ($this->rpcServices as $name => $abstracts) {
-                    $parserClass = $this->getConfig("rpc.client.{$name}.parser", JsonParser::class);
-                    $parser      = $this->app->make($parserClass);
-                    $gateway     = new Gateway($this->createRpcConnector($name), $parser);
-                    $middleware  = $this->getConfig("rpc.client.{$name}.middleware", []);
-
-                    foreach ($abstracts as $abstract) {
-                        $this->app->bind($abstract, function (App $app) use ($middleware, $gateway, $name, $abstract) {
-                            return $app->invokeClass(Proxy::getClassName($name, $abstract), [$gateway, $middleware]);
-                        });
-                    }
-                }
-            } catch (Throwable $e) {
             }
         }
     }

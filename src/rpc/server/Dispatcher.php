@@ -72,10 +72,16 @@ class Dispatcher
         foreach ($services as $className) {
             $reflectionClass = new ReflectionClass($className);
             $interfaces      = $reflectionClass->getInterfaceNames();
-
-            foreach ($interfaces as $interface) {
-                $this->services[class_basename($interface)] = [
-                    'interface' => $interface,
+            if (!empty($interfaces)) {
+                foreach ($interfaces as $interface) {
+                    $this->services[class_basename($interface)] = [
+                        'interface' => $interface,
+                        'class'     => $className,
+                    ];
+                }
+            } else {
+                $this->services[class_basename($className)] = [
+                    'interface' => $className,
                     'class'     => $className,
                 ];
             }
@@ -101,6 +107,9 @@ class Dispatcher
 
         $reflection = new ReflectionClass($interface);
         foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+            if ($method->isConstructor() || $method->isDestructor()) {
+                continue;
+            }
             $returnType = $method->getReturnType();
             if ($returnType instanceof ReflectionNamedType) {
                 $returnType = $returnType->getName();
