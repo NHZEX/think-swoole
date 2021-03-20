@@ -56,11 +56,6 @@ class Manager
     protected $consoleOutput;
 
     /**
-     * @var App
-     */
-    protected $container;
-
-    /**
      * Server events.
      *
      * @var array
@@ -86,16 +81,11 @@ class Manager
         return self::$managerInstance;
     }
 
-    /**
-     * Manager constructor.
-     * @param App $container
-     */
-    public function __construct(App $container)
+    protected function setManagerInstance()
     {
         if (self::$managerInstance !== null) {
             throw new RuntimeException('Repeat instance manager');
         }
-        $this->container = $container;
         self::$managerInstance = $this;
     }
 

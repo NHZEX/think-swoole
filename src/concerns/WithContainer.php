@@ -22,6 +22,7 @@ trait WithContainer
     public function __construct(App $container)
     {
         $this->container = $container;
+        $this->setManagerInstance();
     }
 
     protected function getContainer()

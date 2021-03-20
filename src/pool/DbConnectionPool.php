@@ -4,11 +4,8 @@ declare(strict_types=1);
 namespace think\swoole\pool;
 
 use Smf\ConnectionPool\Connectors\ConnectorInterface;
-use Swoole\Event;
 use think\db\ConnectionInterface;
-use think\swoole\Manager;
 use function call_user_func;
-use function gc_collect_cycles;
 
 class DbConnectionPool implements ConnectorInterface
 {
