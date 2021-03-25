@@ -3,6 +3,7 @@
 namespace think\swoole;
 
 use Closure;
+use InvalidArgumentException;
 use ReflectionObject;
 use RuntimeException;
 use think\App;
@@ -97,22 +98,29 @@ class Sandbox
         if (!is_null($fd)) {
             Context::setData('_fd', $fd);
         }
-        $this->setInstance($app = $this->getApplication());
+        $app = $this->getApplication(true);
+        $this->setInstance($app);
         $this->resetApp($app);
     }
 
     public function clear($snapshot = true)
     {
         if ($snapshot && $app = $this->getSnapshot()) {
-            $app->clearInstances();
             unset($this->snapshots[$this->getSnapshotId()]);
+
+            // 垃圾回收
+            $divisor     = $this->config->get('swoole.gc.divisor', 100);
+            $probability = $this->config->get('swoole.gc.probability', 1);
+            if (random_int(1, $divisor) <= $probability) {
+                gc_collect_cycles();
+            }
         }
 
         Context::clear();
         $this->setInstance($this->getBaseApp());
     }
 
-    public function getApplication()
+    public function getApplication($init = false)
     {
         if (Context::getCoroutineId() === -1) {
             return $this->getBaseApp();
@@ -122,17 +130,20 @@ class Sandbox
             return $snapshot;
         }
 
-        $snapshot = clone $this->getBaseApp();
-        $snapshot->allowClearInstances();
-        $this->setSnapshot($snapshot);
+        if ($init) {
+            $snapshot = clone $this->getBaseApp();
+            $snapshot->allowClearInstances();
+            $this->setSnapshot($snapshot);
 
-        return $snapshot;
+            return $snapshot;
+        }
+        throw new InvalidArgumentException('The app object has not been initialized');
     }
 
     protected function getSnapshotId()
     {
         if ($fd = Context::getData('_fd')) {
-            return "fd_" . $fd;
+            return 'fd_' . $fd;
         }
 
         return Context::getCoroutineId();

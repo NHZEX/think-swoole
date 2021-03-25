@@ -62,7 +62,7 @@ trait InteractsWithServer
     {
         $this->setProcessName('master');
 
-        $this->triggerEvent("start", func_get_args());
+        $this->triggerEvent('start', func_get_args());
     }
 
     /**
@@ -73,7 +73,7 @@ trait InteractsWithServer
     public function onManagerStart()
     {
         $this->setProcessName('manager');
-        $this->triggerEvent("managerStart", func_get_args());
+        $this->triggerEvent('managerStart', func_get_args());
     }
 
     /**
@@ -99,7 +99,7 @@ trait InteractsWithServer
 
             $this->prepareApplication();
             $this->bindServer();
-            $this->triggerEvent("workerStart", $this->app);
+            $this->triggerEvent('workerStart', $this->app);
         });
     }
 
@@ -137,7 +137,7 @@ trait InteractsWithServer
     protected function bindServer()
     {
         $this->app->bind(Server::class, $this->getServer());
-        $this->app->bind("swoole.server", Server::class);
+        $this->app->bind('swoole.server', Server::class);
     }
 
     /**
