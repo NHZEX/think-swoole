@@ -24,7 +24,7 @@ class App extends \think\App
         self::$lockInstance = $lock;
     }
 
-    public function runningInConsole()
+    public function runningInConsole(): bool
     {
         return Context::hasData('_fd');
     }
