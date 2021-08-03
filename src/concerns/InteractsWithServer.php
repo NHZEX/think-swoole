@@ -19,7 +19,7 @@ use Throwable;
 /**
  * Trait InteractsWithServer
  * @package think\swoole\concerns
- * @property App $container
+ * @property App    $container
  * @property Output $consoleOutput
  */
 trait InteractsWithServer
@@ -30,14 +30,14 @@ trait InteractsWithServer
      */
     public function run(): void
     {
-        $this->getServer()->set([
-            'task_enable_coroutine' => true,
-            'send_yield'            => true,
-            'reload_async'          => true,
-            'enable_coroutine'      => true,
-            'max_request'           => 0,
-            'task_max_request'      => 0,
-        ]);
+        $this->getServer()->set(
+            [
+                'task_enable_coroutine' => true,
+                'send_yield'            => true,
+                'reload_async'          => true,
+                'enable_coroutine'      => true,
+            ] + $this->getConfig('server.options')
+        );
         $this->initialize();
         $this->triggerEvent('init');
 
@@ -94,8 +94,8 @@ trait InteractsWithServer
             );
 
             if ($this->getConfig('options.clear_cache', false)) {
-            $this->clearCache();
-        }
+                $this->clearCache();
+            }
 
             $this->setProcessName(($server->taskworker ? 'task' : 'worker') . "#{$server->worker_id}");
 
@@ -109,7 +109,7 @@ trait InteractsWithServer
      * Set onTask listener.
      *
      * @param mixed $server
-     * @param Task $task
+     * @param Task  $task
      */
     public function onTask($server, Task $task)
     {
@@ -216,7 +216,7 @@ trait InteractsWithServer
             return;
         }
 
-        $appName    = $this->container->config->get('app.name', 'ThinkPHP');
+        $appName = $this->container->config->get('app.name', 'ThinkPHP');
 
         $name = sprintf('%s: %s', $appName, $process);
 
